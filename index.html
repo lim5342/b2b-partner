@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>대장TV 기업제휴 영업 관리</title>
+<style>
+  :root{
+    --bg:#f2f4f6; --panel:#fff; --line:#e5e8eb; --text:#191f28; --muted:#8b95a1;
+    --blue:#3182f6; --blue-d:#1b64da; --ok:#00b26e; --warn:#f59e0b; --danger:#f04452;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px}
+  input,select,textarea{font-family:inherit}
+
+  /* 로그인 */
+  #login{max-width:380px;margin:14vh auto;background:var(--panel);border-radius:var(--r);padding:34px 28px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  #login h1{font-size:20px;margin-bottom:4px}
+  #login p{color:var(--muted);font-size:13px;margin-bottom:22px}
+  .fld{margin-bottom:13px}
+  .fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  .in{width:100%;padding:12px 13px;background:#f9fafb;border:1px solid var(--line);border-radius:9px;font-size:14px}
+  .in:focus{outline:none;border-color:var(--blue);background:#fff}
+  .btn{padding:11px 17px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+  .btn-p{background:var(--blue);color:#fff;width:100%}
+  .btn-p:hover{background:var(--blue-d)}
+  .btn-g{background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .btn-s{padding:6px 11px;font-size:12px;border-radius:7px}
+  .err{font-size:13px;color:var(--danger);margin-top:10px;display:none}
+
+  /* 헤더 */
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  header h1{font-size:19px}
+  .who{font-size:12px;color:var(--muted);margin-right:8px}
+
+  /* KPI */
+  .kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+  .k{background:var(--panel);border-radius:var(--r);padding:15px 16px}
+  .k .n{font-size:23px;font-weight:800}
+  .k .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .k.rev .n{color:var(--ok)}
+  .k.new .n{color:var(--blue)}
+
+  /* 뷰 전환 + 필터 */
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .bar select,.bar input{padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;background:#fff}
+  .seg{display:flex;background:#e9edf1;border-radius:9px;padding:3px}
+  .seg button{border:none;background:none;padding:7px 15px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .sp{flex:1}
+
+  /* 칸반 */
+  #kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .col{background:#eef1f4;border-radius:var(--r);padding:11px;min-height:120px}
+  .col h3{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;color:var(--muted)}
+  .col h3 .cnt{background:#fff;border-radius:20px;padding:1px 8px;font-size:11px}
+  .card{background:#fff;border-radius:10px;padding:11px;margin-bottom:9px;cursor:pointer;border:1px solid transparent;transition:.12s}
+  .card:hover{border-color:var(--blue)}
+  .card .co{font-weight:700;font-size:14px}
+  .card .meta{font-size:12px;color:var(--muted);margin-top:3px}
+  .card .amt{font-size:12px;color:var(--ok);font-weight:700;margin-top:5px}
+  .card .hc{display:inline-block;background:#eef4ff;color:var(--blue);border-radius:5px;padding:1px 6px;font-size:11px;margin-top:5px}
+
+  /* 리스트 */
+  #listWrap{background:var(--panel);border-radius:var(--r);overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:#f9fafb;color:var(--muted);font-size:12px;font-weight:600;position:sticky;top:0}
+  tr:hover td{background:#fafbfc}
+  .stage-badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .st-신규{background:#eef4ff;color:var(--blue)}
+  .st-상담중{background:#fff4e0;color:#c67c00}
+  .st-결제대기{background:#ffeef0;color:var(--danger)}
+  .st-완료{background:#e5f9f0;color:var(--ok)}
+  .st-보류{background:#eef1f4;color:var(--muted)}
+  .empty{text-align:center;padding:44px;color:var(--muted)}
+
+  /* 상세 패널 */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+  .modal.show{display:flex}
+  .box{background:#fff;border-radius:16px;max-width:540px;width:100%;max-height:88vh;overflow:auto;padding:26px}
+  .box h3{font-size:17px;margin-bottom:4px;display:flex;justify-content:space-between}
+  .box .x{cursor:pointer;color:var(--muted);font-size:22px;line-height:1}
+  .box .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+  .drow{display:flex;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .drow .k2{width:100px;color:var(--muted);flex-shrink:0}
+  .drow .v2{flex:1}
+  .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .edit-grid .fld label{font-size:12px}
+  .save-row{display:flex;gap:9px;margin-top:18px}
+
+  @media(max-width:900px){
+    .kpi{grid-template-columns:repeat(2,1fr)}
+    #kanban{grid-template-columns:1fr;gap:10px}
+    .edit-grid{grid-template-columns:1fr}
+    .hide-m{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="login">
+  <h1>🏢 기업제휴 영업 관리</h1>
+  <p>대장TV 단체교육 리드</p>
+  <div class="fld"><label>이메일</label><input class="in" type="email" id="email" autocomplete="username"/></div>
+  <div class="fld"><label>비밀번호</label><input class="in" type="password" id="password" autocomplete="current-password"/></div>
+  <button class="btn btn-p" id="loginBtn">로그인</button>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<!-- 대시보드 -->
+<div class="wrap" id="dash" style="display:none">
+  <header>
+    <h1>🏢 기업제휴 영업 관리</h1>
+    <div><span class="who" id="whoami"></span><button class="btn btn-g btn-s" id="logoutBtn">로그아웃</button></div>
+  </header>
+
+  <div class="kpi">
+    <div class="k new"><div class="n" id="k-new">0</div><div class="l">신규 미상담</div></div>
+    <div class="k"><div class="n" id="k-active">0</div><div class="l">진행중(상담+결제대기)</div></div>
+    <div class="k"><div class="n" id="k-done">0</div><div class="l">등록완료</div></div>
+    <div class="k rev"><div class="n" id="k-paid">0</div><div class="l">확정 매출(원)</div></div>
+    <div class="k"><div class="n" id="k-pipe">0</div><div class="l">파이프라인 예상(원)</div></div>
+  </div>
+
+  <div class="bar">
+    <div class="seg">
+      <button class="on" id="viewKanban" onclick="switchView('kanban')">파이프라인</button>
+      <button id="viewList" onclick="switchView('list')">목록</button>
+    </div>
+    <input type="search" id="fSearch" placeholder="기업·이름·연락처 검색" style="width:200px"/>
+    <div class="sp"></div>
+    <button class="btn btn-g btn-s" id="refreshBtn">↻ 새로고침</button>
+    <button class="btn btn-g btn-s" id="csvBtn">⬇ CSV</button>
+  </div>
+
+  <div id="kanban"></div>
+  <div id="listWrap" style="display:none">
+    <table>
+      <thead><tr>
+        <th>접수일</th><th>기업명</th><th>담당자</th><th>연락처</th>
+        <th>인원</th><th>단계</th><th>제안가</th><th>입금</th><th>관리</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">접수된 리드가 없습니다.</div>
+  </div>
+</div>
+
+<!-- 상세/편집 모달 -->
+<div class="modal" id="modal">
+  <div class="box" id="boxBody"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  window.DAEJANG_SUPABASE = {
+    url:     'https://hlkngiqlkumebqauiyee.supabase.co',
+    anonKey: 'sb_publishable_SA87154117_-bz2SStCeoQ_6JiFojbi',
+    source:  'b2b-partner'
+  };
+</script>
+<script>
+(function(){
+  "use strict";
+  const CFG = window.DAEJANG_SUPABASE || {};
+  const STAGES = ['신규','상담중','결제대기','완료','보류'];
+  let sb=null, user=null, leads=[], view='kanban', editingId=null;
+
+  function init(){
+    if(!CFG.url || !CFG.anonKey || CFG.url.includes('여기에')){
+      return loginErr('⚠ js/config.js에 Supabase URL/Key를 입력하세요.');
+    }
+    sb = window.supabase.createClient(CFG.url, CFG.anonKey);
+    sb.auth.getSession().then(({data})=>{ if(data.session){ user=data.session.user; enter(); }});
+  }
+  async function login(){
+    const email=val('email'), pw=val('password');
+    if(!email||!pw) return loginErr('이메일과 비밀번호를 입력하세요.');
+    const b=document.getElementById('loginBtn'); b.disabled=true; b.textContent='로그인 중...';
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
+    b.disabled=false; b.textContent='로그인';
+    if(error) return loginErr('로그인 실패: 계정을 확인하세요.');
+    user=data.user; enter();
+  }
+  async function logout(){ await sb.auth.signOut(); location.reload(); }
+
+  function enter(){
+    document.getElementById('login').style.display='none';
+    document.getElementById('dash').style.display='block';
+    document.getElementById('whoami').textContent=user?.email||'';
+    load();
+  }
+
+  async function load(){
+    // b2b-partner 소스만 (기업제휴). 필요시 필터 조정
+    const {data,error}=await sb.from('leads').select('*')
+      .eq('source','b2b-partner').order('created_at',{ascending:false});
+    if(error){ alert('조회 실패: '+error.message); return; }
+    leads = (data||[]).map(normalize);
+    renderKPI(); render();
+  }
+  // 기존 데이터 호환: stage 없으면 status에서 매핑
+  function normalize(l){
+    if(!l.stage){ l.stage = l.status==='완료'?'완료':(l.status==='연락함'?'상담중':'신규'); }
+    if(!l.company && l.payload) l.company = l.payload.company||'';
+    if(!l.headcount && l.payload) l.headcount = l.payload.headcount||'';
+    return l;
+  }
+
+  function renderKPI(){
+    let nNew=0,nAct=0,nDone=0,paid=0,pipe=0;
+    leads.forEach(l=>{
+      if(l.stage==='신규') nNew++;
+      if(l.stage==='상담중'||l.stage==='결제대기') nAct++;
+      if(l.stage==='완료'){ nDone++; paid += (l.paid_amount||0); }
+      if(l.stage!=='완료'&&l.stage!=='보류') pipe += (l.quoted_price||0);
+    });
+    set('k-new',nNew); set('k-active',nAct); set('k-done',nDone);
+    set('k-paid', won(paid)); set('k-pipe', won(pipe));
+  }
+
+  function filtered(){
+    const q=val('fSearch').toLowerCase();
+    return leads.filter(l=>{
+      if(!q) return true;
+      return ((l.company||'')+(l.name||'')+(l.phone||'')).toLowerCase().includes(q);
+    });
+  }
+
+  function render(){ view==='kanban'?renderKanban():renderList(); }
+
+  function renderKanban(){
+    const box=document.getElementById('kanban');
+    const rows=filtered();
+    box.innerHTML = STAGES.map(st=>{
+      const items=rows.filter(l=>l.stage===st);
+      return `<div class="col">
+        <h3>${st}<span class="cnt">${items.length}</span></h3>
+        ${items.map(cardHtml).join('')}
+      </div>`;
+    }).join('');
+  }
+  function cardHtml(l){
+    return `<div class="card" onclick="openLead('${l.id}')">
+      <div class="co">${esc(l.company||'(기업명 없음)')}</div>
+      <div class="meta">${esc(l.name||'')} · ${esc(l.phone||'')}</div>
+      ${l.headcount?`<span class="hc">${esc(l.headcount)}명</span>`:''}
+      ${l.quoted_price?`<div class="amt">제안 ${won(l.quoted_price)}원</div>`:''}
+    </div>`;
+  }
+
+  function renderList(){
+    const rows=filtered();
+    document.getElementById('empty').style.display=rows.length?'none':'block';
+    document.getElementById('rows').innerHTML = rows.map(l=>`<tr>
+      <td>${fmt(l.created_at)}</td>
+      <td><b>${esc(l.company||'-')}</b></td>
+      <td>${esc(l.name||'-')}</td>
+      <td>${esc(l.phone||'-')}</td>
+      <td>${esc(l.headcount||'-')}</td>
+      <td><span class="stage-badge st-${l.stage}">${l.stage}</span></td>
+      <td>${l.quoted_price?won(l.quoted_price):'-'}</td>
+      <td>${l.paid_amount?won(l.paid_amount):'-'}</td>
+      <td><button class="btn btn-g btn-s" onclick="openLead('${l.id}')">관리</button></td>
+    </tr>`).join('');
+  }
+
+  // 상세/편집
+  window.openLead=(id)=>{
+    const l=leads.find(x=>x.id===id); if(!l) return; editingId=id;
+    document.getElementById('boxBody').innerHTML=`
+      <h3><span>${esc(l.company||'기업 리드')}</span><span class="x" onclick="closeModal()">×</span></h3>
+      <div class="sub">접수 ${fmt(l.created_at)} · ${esc(l.name||'')} · ${esc(l.phone||'')}</div>
+      ${drow('예상 인원', (l.headcount||'-')+'명')}
+      ${drow('문의내용', l.memo||'-')}
+      <div class="edit-grid">
+        <div class="fld"><label>영업 단계</label>
+          <select class="in" id="e-stage">${STAGES.map(s=>`<option ${s===l.stage?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fld"><label>담당자</label><input class="in" id="e-owner" value="${esc(l.owner||'')}"/></div>
+        <div class="fld"><label>제안 할인가(원)</label><input class="in" type="number" id="e-quoted" value="${l.quoted_price||''}"/></div>
+        <div class="fld"><label>입금액(원)</label><input class="in" type="number" id="e-paid" value="${l.paid_amount||''}"/></div>
+        <div class="fld"><label>다음 액션일</label><input class="in" type="date" id="e-next" value="${l.next_action||''}"/></div>
+      </div>
+      <div class="fld" style="margin-top:12px"><label>메모</label><textarea class="in" id="e-memo" rows="2">${esc(l.memo||'')}</textarea></div>
+      <div class="save-row">
+        <button class="btn btn-p" onclick="saveLead()">저장</button>
+        <button class="btn btn-g" onclick="closeModal()">닫기</button>
+        <div class="sp"></div>
+        <button class="btn btn-g" style="color:var(--danger)" onclick="delLead()">삭제</button>
+      </div>`;
+    document.getElementById('modal').classList.add('show');
+  };
+  window.closeModal=()=>document.getElementById('modal').classList.remove('show');
+
+  window.saveLead=async()=>{
+    const patch={
+      stage: val('e-stage'),
+      owner: val('e-owner')||null,
+      quoted_price: num('e-quoted'),
+      paid_amount: num('e-paid'),
+      next_action: val('e-next')||null,
+      memo: val('e-memo')||null,
+      status: val('e-stage') // status도 동기화
+    };
+    const {error}=await sb.from('leads').update(patch).eq('id',editingId);
+    if(error){ alert('저장 실패: '+error.message); return; }
+    const l=leads.find(x=>x.id===editingId); Object.assign(l,patch);
+    closeModal(); renderKPI(); render();
+  };
+  window.delLead=async()=>{
+    if(!confirm('이 리드를 삭제하시겠습니까?')) return;
+    const {error}=await sb.from('leads').delete().eq('id',editingId);
+    if(error){ alert('삭제 실패: '+error.message); return; }
+    leads=leads.filter(x=>x.id!==editingId); closeModal(); renderKPI(); render();
+  };
+
+  window.switchView=(v)=>{
+    view=v;
+    document.getElementById('viewKanban').classList.toggle('on',v==='kanban');
+    document.getElementById('viewList').classList.toggle('on',v==='list');
+    document.getElementById('kanban').style.display=v==='kanban'?'grid':'none';
+    document.getElementById('listWrap').style.display=v==='list'?'block':'none';
+    render();
+  };
+
+  function exportCSV(){
+    const rows=filtered();
+    if(!rows.length) return alert('내보낼 데이터가 없습니다.');
+    const head=['접수일','기업명','담당자','연락처','인원','단계','제안가','입금액','영업담당','메모'];
+    const lines=[head.join(',')];
+    rows.forEach(l=>lines.push([
+      fmt(l.created_at),l.company,l.name,l.phone,l.headcount,l.stage,
+      l.quoted_price||'',l.paid_amount||'',l.owner||'',(l.memo||'').replace(/\n/g,' ')
+    ].map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')));
+    const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=`기업제휴리드_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  }
+
+  // util
+  function drow(k,v){return `<div class="drow"><div class="k2">${k}</div><div class="v2">${esc(v)}</div></div>`;}
+  function won(n){return (n||0).toLocaleString('ko-KR');}
+  function fmt(s){if(!s)return'-';const d=new Date(s);return `${d.getMonth()+1}/${d.getDate()}`;}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function val(id){return (document.getElementById(id)?.value||'').trim();}
+  function num(id){const v=val(id);return v?parseInt(v,10):null;}
+  function set(id,v){document.getElementById(id).textContent=v;}
+  function loginErr(m){const e=document.getElementById('loginErr');e.textContent=m;e.style.display='block';}
+
+  document.getElementById('loginBtn').onclick=login;
+  document.getElementById('logoutBtn').onclick=logout;
+  document.getElementById('refreshBtn').onclick=load;
+  document.getElementById('csvBtn').onclick=exportCSV;
+  document.getElementById('fSearch').oninput=render;
+  document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+
+  init();
+})();
+</script>
+</body>
+</html>
