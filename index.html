@@ -812,7 +812,11 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
+  // EmailJS 초기화 (공개키)
+  emailjs.init('여기에_PUBLIC_KEY');
+
   function toggleFaq(el) {
     el.closest('.faq-item').classList.toggle('open');
   }
@@ -859,6 +863,20 @@
       if (error) throw error;
 
       // 여기 도달 = 진짜 저장 성공
+      // 이메일 알림 발송 (실패해도 신청 완료 처리)
+      try {
+        emailjs.send('service_b2b', 'template_b2b', {
+          to_email: 'sjj200523@naver.com',
+          company: company,
+          name: name,
+          phone: phone,
+          headcount: headcount,
+          budget: budget || '미정',
+          message: message || '없음',
+          time: new Date().toLocaleString('ko-KR')
+        });
+      } catch(mailErr){ console.log('이메일 알림 실패(무시):', mailErr); }
+
       btn.disabled = false;
       btn.textContent = '단체 제휴 상담 신청하기';
       this.reset();
